@@ -1,0 +1,118 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":dependencyDashboard",
+    ":semanticCommits",
+    ":automergeDigest"
+  ],
+  "labels": ["dependencies"],
+  "prHourlyLimit": 2,
+  "prConcurrentLimit": 5,
+  "packageRules": [
+    {
+      "description": "Keep code-server base image updates grouped",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["codercom/code-server"],
+      "matchUpdateTypes": ["patch", "minor", "major"],
+      "groupName": "code-server base image",
+      "labels": ["dependencies", "docker", "code-server"],
+      "commitMessageTopic": "code-server base image"
+    },
+    {
+      "description": "Auto-merge code-server patch updates after a short waiting period",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["codercom/code-server"],
+      "matchUpdateTypes": ["patch"],
+      "automerge": true,
+      "automergeType": "pr",
+      "minimumReleaseAge": "3 days",
+      "labels": ["dependencies", "docker", "code-server"]
+    },
+    {
+      "description": "Auto-merge code-server minor updates after a longer waiting period",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["codercom/code-server"],
+      "matchUpdateTypes": ["minor"],
+      "automerge": true,
+      "automergeType": "pr",
+      "minimumReleaseAge": "7 days",
+      "labels": ["dependencies", "docker", "code-server"]
+    },
+    {
+      "description": "Require manual approval for code-server major updates",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["codercom/code-server"],
+      "matchUpdateTypes": ["major"],
+      "automerge": false,
+      "labels": ["dependencies", "docker", "code-server", "manual-review"]
+    },
+    {
+      "description": "Auto-merge Claude Code CLI patch/minor updates after a short waiting period",
+      "matchDatasources": ["npm"],
+      "matchPackageNames": ["@anthropic-ai/claude-code"],
+      "matchUpdateTypes": ["patch", "minor"],
+      "automerge": true,
+      "automergeType": "pr",
+      "minimumReleaseAge": "3 days",
+      "labels": ["dependencies", "npm", "claude-code"]
+    },
+    {
+      "description": "Require manual approval for Claude Code CLI major updates",
+      "matchDatasources": ["npm"],
+      "matchPackageNames": ["@anthropic-ai/claude-code"],
+      "matchUpdateTypes": ["major"],
+      "automerge": false,
+      "labels": ["dependencies", "npm", "claude-code", "manual-review"]
+    },
+    {
+      "description": "Auto-merge safe GitHub Actions patch updates after a short waiting period",
+      "matchManagers": ["github-actions"],
+      "matchUpdateTypes": ["patch"],
+      "automerge": true,
+      "automergeType": "pr",
+      "minimumReleaseAge": "3 days",
+      "labels": ["dependencies", "github-actions"]
+    },
+    {
+      "description": "Auto-merge GitHub Actions minor updates after a longer waiting period",
+      "matchManagers": ["github-actions"],
+      "matchUpdateTypes": ["minor"],
+      "automerge": true,
+      "automergeType": "pr",
+      "minimumReleaseAge": "7 days",
+      "labels": ["dependencies", "github-actions"]
+    },
+    {
+      "description": "Require manual approval for GitHub Actions major updates",
+      "matchManagers": ["github-actions"],
+      "matchUpdateTypes": ["major"],
+      "automerge": false,
+      "labels": ["dependencies", "github-actions", "manual-review"]
+    }
+  ],
+  "regexManagers": [
+    {
+      "description": "Update the code-server tag in image/Dockerfile",
+      "customType": "regex",
+      "fileMatch": ["^image/Dockerfile$"],
+      "matchStrings": [
+        "ARG\\s+CODE_SERVER_TAG=(?<currentValue>[^\\s]+)"
+      ],
+      "depNameTemplate": "codercom/code-server",
+      "datasourceTemplate": "docker",
+      "versioningTemplate": "docker"
+    },
+    {
+      "description": "Update the pinned Claude Code CLI version in image/Dockerfile",
+      "customType": "regex",
+      "fileMatch": ["^image/Dockerfile$"],
+      "matchStrings": [
+        "npm install -g @anthropic-ai/claude-code@(?<currentValue>[^\\s]+)"
+      ],
+      "depNameTemplate": "@anthropic-ai/claude-code",
+      "datasourceTemplate": "npm",
+      "versioningTemplate": "npm"
+    }
+  ]
+}
