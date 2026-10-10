@@ -8,7 +8,7 @@ ARG NODE_MAJOR=22
 RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates git && \
     curl -fsSL https://deb.nodesource.com/setup_${NODE_MAJOR}.x | bash - && \
     apt-get install -y --no-install-recommends nodejs && \
-    npm install -g @anthropic-ai/claude-code@2.1.266 && \
+    npm install -g @anthropic-ai/claude-code@2.1.292 && \
     apt-get purge -y curl && apt-get autoremove -y && \
     rm -rf /var/lib/apt/lists/*
 
