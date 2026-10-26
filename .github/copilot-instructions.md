@@ -7,13 +7,12 @@ standalone summary for Copilot Chat, agent mode and Copilot CLI.
 ## Repository
 
 Builds `ghcr.io/dominik-ba/code-server-claude`: `codercom/code-server` (Debian) + Node.js
-22 + Claude Code CLI + kubectl, multi-arch (amd64, arm64). Deployed by the `claude-agent`
-chart in `dominik-ba/my-raspi-cluster`.
+22 + Claude Code CLI + kubectl, multi-arch (amd64, arm64).
 
 ## Rules
 
 - All versions are `ARG`s in `image/Dockerfile`; Renovate updates them. Debian-based
-  code-server tags only (no `-39`/`-fedora`). kubectl stays on the cluster's minor (1.33).
+  code-server tags only (no `-39`/`-fedora`). kubectl stays on one Kubernetes minor (1.33).
 - Tags are `<year>.<month><day>.<run>` and `cs<code-server>-claude<cli>`; no `latest`.
 - The image ends as user `coder` (uid 1000), port 8080, code-server entrypoint.
 - No secrets in the repo or image. Fork PRs run without secrets and with a read-only token:

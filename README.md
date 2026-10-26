@@ -19,8 +19,8 @@ Code can be used directly from a code-server terminal.
   arguments). The base already includes git, curl and openssh-client.
 - Node.js 22.x (via NodeSource)
 - `@anthropic-ai/claude-code` (pinned via `ARG CLAUDE_CODE_VERSION`)
-- `kubectl` (pinned via `ARG KUBECTL_VERSION`, checksum-verified, kept on the cluster's
-  Kubernetes minor version)
+- `kubectl` (pinned via `ARG KUBECTL_VERSION`, checksum-verified, kept on one
+  Kubernetes minor version, currently 1.33)
 
 All versions are pinned in `image/Dockerfile` and updated by Renovate.
 

@@ -181,7 +181,7 @@
       ]
     },
     {
-      "description": "Keep kubectl on the cluster's Kubernetes minor (k3s v1.33); raise this together with the cluster upgrade",
+      "description": "Keep kubectl on one Kubernetes minor (1.33); raise this deliberately",
       "matchDatasources": [
         "github-releases"
       ],

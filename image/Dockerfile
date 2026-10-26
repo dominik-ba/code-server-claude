@@ -20,7 +20,7 @@ RUN apt-get update && \
     npm cache clean --force && \
     rm -rf /var/lib/apt/lists/*
 
-# kubectl for read-only cluster inspection; keep within one minor of the cluster's k3s version.
+# kubectl for cluster inspection; pinned to one Kubernetes minor (see allowedVersions in renovate.json).
 ARG KUBECTL_VERSION=v1.33.13
 RUN curl -fsSLo /usr/local/bin/kubectl "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/${TARGETARCH}/kubectl" && \
     echo "$(curl -fsSL "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/${TARGETARCH}/kubectl.sha256")  /usr/local/bin/kubectl" | sha256sum -c - && \

@@ -11,10 +11,8 @@ Builds the container image `ghcr.io/dominik-ba/code-server-claude`: the official
 (`@anthropic-ai/claude-code`) and `kubectl`. It runs as a browser-based coding workspace.
 The repo is public; anyone can open pull requests from forks.
 
-The main consumer is the `claude-agent` Helm chart in
-[dominik-ba/my-raspi-cluster](https://github.com/dominik-ba/my-raspi-cluster)
-(`gitops/helm/claude-agent`), deployed by ArgoCD on an arm64 k3s cluster (Kubernetes 1.33).
-Deployment concerns (auth, storage, RBAC, ingress) belong in that chart, not in the image.
+The image is meant to run in Kubernetes, including arm64 nodes. Deployment concerns (auth,
+storage, RBAC, ingress) belong in the deploying Helm chart or manifests, not in the image.
 
 ## Layout
 
@@ -52,15 +50,15 @@ Before proposing a change as complete, run and report what applies:
   by Renovate) and `cs<code-server>-claude<claude-code>` (informative). There is no `latest`.
 - Use Debian-based code-server tags only (e.g. `4.141.1`). The `-39`/`-fedora` variants have
   no `apt-get`.
-- `KUBECTL_VERSION` stays within the cluster's Kubernetes minor (`allowedVersions` in
-  `renovate.json`); raise it together with the cluster upgrade.
+- `KUBECTL_VERSION` stays on one Kubernetes minor (currently 1.33, `allowedVersions` in
+  `renovate.json`); raising the minor is a deliberate change.
 - Every version change goes through `image/Dockerfile` so Renovate and the tag computation
   in `build-image.yml` see it.
 
 ## Conventions to preserve
 
-- The image ends as user `coder` (uid 1000) with workdir `/home/coder/project`; the cluster
-  relies on uid/gid 1000 for its SMB storage.
+- The image ends as user `coder` (uid 1000) with workdir `/home/coder/project`; deployments
+  rely on uid/gid 1000 (e.g. for volume ownership and `fsGroup`).
 - Keep the code-server entrypoint and port 8080.
 - Downloads are pinned and checksum-verified where the upstream publishes checksums.
 - 2-space indentation for YAML/JSON, 4 spaces for shell (`.editorconfig`); English for code
