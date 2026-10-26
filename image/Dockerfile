@@ -3,7 +3,7 @@ ARG CODE_SERVER_IMAGE=codercom/code-server
 ARG CODE_SERVER_TAG=4.141.1
 FROM $CODE_SERVER_IMAGE:$CODE_SERVER_TAG
 
-USER root
+USER 0
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # Set by buildx per target platform (amd64, arm64).
@@ -26,7 +26,8 @@ RUN curl -fsSLo /usr/local/bin/kubectl "https://dl.k8s.io/release/${KUBECTL_VERS
     echo "$(curl -fsSL "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/${TARGETARCH}/kubectl.sha256")  /usr/local/bin/kubectl" | sha256sum -c - && \
     chmod 0755 /usr/local/bin/kubectl
 
-USER coder
+# uid 1000 is "coder" in the base image
+USER 1000
 WORKDIR /home/coder/project
 
 EXPOSE 8080
