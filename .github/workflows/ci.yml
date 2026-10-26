@@ -1,0 +1,105 @@
+name: CI
+
+# Tests every PR (including PRs from forks) and every push to main.
+# Fork PRs run with a read-only token and no secrets. Keep it that way: never
+# switch this workflow to pull_request_target and never log in to a registry here.
+# Publishing happens only in build-image.yml on main.
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: Lint Dockerfile
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: hadolint
+        uses: hadolint/hadolint-action@06be81baf89a55ffd0e24b8f04a4185738dd3387 # v3.5.0
+        with:
+          dockerfile: image/Dockerfile
+          config: .hadolint.yaml
+
+  build:
+    name: Build & smoke test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1 # v4.4.0
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+
+      - name: Build for linux/amd64 and linux/arm64
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: ./image
+          file: ./image/Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: false
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Load linux/amd64 image for smoke tests
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: ./image
+          file: ./image/Dockerfile
+          platforms: linux/amd64
+          load: true
+          tags: code-server-claude:ci
+          cache-from: type=gha
+
+      - name: Check installed tools
+        run: |
+          docker run --rm --entrypoint bash code-server-claude:ci -c '
+            set -euo pipefail
+            code-server --version
+            node --version
+            claude --version
+            kubectl version --client
+            git --version
+            ssh -V
+            test "$(id -u)" = 1000
+          '
+
+      - name: Start code-server and wait for /healthz
+        run: |
+          docker run -d --name code-server -p 8080:8080 -e PASSWORD=ci-only code-server-claude:ci
+          for i in $(seq 1 60); do
+            if curl -fsS http://localhost:8080/healthz; then
+              echo
+              echo "code-server is healthy"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "code-server did not become healthy" >&2
+          docker logs code-server
+          exit 1
+
+      - name: Require the password login
+        run: |
+          status=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/)
+          echo "GET / -> $status"
+          # Without a session cookie code-server must redirect to its login page.
+          test "$status" = 302
+
+      - name: Stop code-server
+        if: always()
+        run: docker rm -f code-server || true
