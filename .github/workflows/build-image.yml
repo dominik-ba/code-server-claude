@@ -1,12 +1,23 @@
 name: Build and Push Image
 
+# The only workflow that publishes. It runs on main (after the PR passed CI) and
+# never on pull requests.
+
 on:
   push:
     branches:
       - main
     paths:
       - 'image/**'
+      - '.github/workflows/build-image.yml'
   workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-image
+  cancel-in-progress: false
 
 env:
   REGISTRY: ghcr.io
@@ -14,6 +25,7 @@ env:
 
 jobs:
   build-and-push:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -21,32 +33,60 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Compute image tags
+        id: vars
+        run: |
+          arg() { sed -nE "s/^ARG $1=(.+)$/\1/p" image/Dockerfile; }
+          code_server=$(arg CODE_SERVER_TAG)
+          claude=$(arg CLAUDE_CODE_VERSION)
+          kubectl=$(arg KUBECTL_VERSION)
+          # Sortable version tag for Renovate: <year>.<month><day>.<run number>,
+          # e.g. 2026.1026.12 (month without leading zero keeps it numeric).
+          echo "version=$(date -u +'%Y').$(date -u +'%-m%d').${GITHUB_RUN_NUMBER}" >> "$GITHUB_OUTPUT"
+          echo "contents=cs${code_server}-claude${claude}" >> "$GITHUB_OUTPUT"
+          echo "code_server=${code_server}" >> "$GITHUB_OUTPUT"
+          echo "claude=${claude}" >> "$GITHUB_OUTPUT"
+          echo "kubectl=${kubectl}" >> "$GITHUB_OUTPUT"
+
+      - name: Image metadata
+        id: meta
+        uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=${{ steps.vars.outputs.version }}
+            type=raw,value=${{ steps.vars.outputs.contents }}
+          labels: |
+            org.opencontainers.image.version=${{ steps.vars.outputs.version }}
+            io.github.dominik-ba.code-server.version=${{ steps.vars.outputs.code_server }}
+            io.github.dominik-ba.claude-code.version=${{ steps.vars.outputs.claude }}
+            io.github.dominik-ba.kubectl.version=${{ steps.vars.outputs.kubectl }}
 
       - name: Log in to the Container registry
-        uses: docker/login-action@v4
+        uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+        uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1 # v4.4.0
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Generate Tag (Date + SHA)
-        id: vars
-        run: echo "tag=$(date +'%Y.%m.%d')-${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@v7
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           context: ./image
           file: ./image/Dockerfile
           push: true
           platforms: linux/amd64,linux/arm64
-          tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.vars.outputs.tag }}
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

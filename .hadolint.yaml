@@ -1,0 +1,4 @@
+ignored:
+  # Pinning apt package versions breaks the build whenever Debian updates a package;
+  # the base image tag is pinned instead.
+  - DL3008
