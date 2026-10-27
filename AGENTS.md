@@ -18,6 +18,10 @@ storage, RBAC, ingress) belong in the deploying Helm chart or manifests, not in 
 
 - `image/Dockerfile`: the image. All versions are `ARG`s: `CODE_SERVER_TAG`,
   `NODE_MAJOR`, `CLAUDE_CODE_VERSION`, `KUBECTL_VERSION`.
+- `image/rootfs/`: files copied into the image. `entrypoint.d/50-claude-remote-control.sh`
+  is run by code-server's entrypoint (`$ENTRYPOINTD` is `/entrypoint.d`) and, with
+  `CLAUDE_REMOTE_CONTROL=1`, starts `usr/local/bin/claude-remote-control` (a restart loop
+  around `claude remote-control`) in the tmux session `claude-rc`.
 - `.hadolint.yaml`: hadolint settings (apt version pinning ignored on purpose).
 - `.github/workflows/ci.yml`: PR and main tests (hadolint, amd64 + arm64 build, amd64 smoke test).
 - `.github/workflows/build-image.yml`: the only publisher (main and manual runs).
@@ -59,7 +63,10 @@ Before proposing a change as complete, run and report what applies:
 
 - The image ends as user `coder` (uid 1000) with workdir `/home/coder/project`; deployments
   rely on uid/gid 1000 (e.g. for volume ownership and `fsGroup`).
-- Keep the code-server entrypoint and port 8080.
+- Keep the code-server entrypoint and port 8080. Startup work goes into `/entrypoint.d`
+  hooks, which must return quickly (they run before code-server starts).
+- Optional features stay opt-in via environment variables; the default container only runs
+  code-server.
 - Downloads are pinned and checksum-verified where the upstream publishes checksums.
 - 2-space indentation for YAML/JSON, 4 spaces for shell (`.editorconfig`); English for code
   and docs.

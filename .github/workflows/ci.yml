@@ -73,6 +73,7 @@ jobs:
             node --version
             claude --version
             kubectl version --client
+            tmux -V
             git --version
             ssh -V
             test "$(id -u)" = 1000
@@ -100,6 +101,28 @@ jobs:
           # Without a session cookie code-server must redirect to its login page.
           test "$status" = 302
 
+      - name: Remote Control stays off by default
+        run: |
+          if docker exec code-server tmux has-session -t claude-rc 2>/dev/null; then
+            echo "claude-rc tmux session started without CLAUDE_REMOTE_CONTROL" >&2
+            exit 1
+          fi
+
+      - name: Remote Control startup hook starts the tmux session
+        run: |
+          docker run -d --name code-server-rc -e PASSWORD=ci-only -e CLAUDE_REMOTE_CONTROL=1 code-server-claude:ci
+          for i in $(seq 1 30); do
+            if docker exec code-server-rc tmux has-session -t claude-rc 2>/dev/null; then
+              # Not logged in, so the loop reports the missing login and retries.
+              docker exec code-server-rc tmux capture-pane -p -t claude-rc
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "claude-rc tmux session did not start" >&2
+          docker logs code-server-rc
+          exit 1
+
       - name: Stop code-server
         if: always()
-        run: docker rm -f code-server || true
+        run: docker rm -f code-server code-server-rc || true

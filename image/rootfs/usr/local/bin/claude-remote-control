@@ -1,0 +1,22 @@
+#!/bin/bash
+# Keeps `claude remote-control` running in the workspace directory. Started in tmux by
+# /entrypoint.d/50-claude-remote-control.sh; attach with `tmux attach -t claude-rc`.
+
+dir="${CLAUDE_REMOTE_CONTROL_DIR:-/home/coder/project}"
+retry="${CLAUDE_REMOTE_CONTROL_RETRY_SECONDS:-30}"
+
+mkdir -p "$dir"
+cd "$dir" || exit 1
+
+while true; do
+    # Extra flags (e.g. "--spawn worktree --permission-mode acceptEdits") are split on
+    # purpose.
+    # shellcheck disable=SC2086
+    claude remote-control ${CLAUDE_REMOTE_CONTROL_ARGS:-}
+    status=$?
+    echo
+    echo "claude remote-control exited with status $status; restarting in ${retry}s."
+    echo "First start: run 'claude auth login' (claude.ai subscription) and 'claude' once"
+    echo "in $dir to trust the folder, from a code-server terminal or this tmux window."
+    sleep "$retry"
+done

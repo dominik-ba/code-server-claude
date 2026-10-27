@@ -81,6 +81,49 @@ Then open <http://localhost:8080>, open a terminal, and run `claude` to start Cl
 
 The image is multi-arch; Raspberry Pi / ARM64 hosts pull the arm64 variant automatically.
 
+### Remote Control (connect from your phone)
+
+With `CLAUDE_REMOTE_CONTROL=1` the container starts
+[`claude remote-control`](https://code.claude.com/docs/en/remote-control) at startup, so you
+can drive Claude Code in this workspace from [claude.ai/code](https://claude.ai/code) or the
+Claude mobile app. It is off by default.
+
+```bash
+docker run -d -p 8080:8080 \
+  -e PASSWORD=change-me \
+  -e CLAUDE_REMOTE_CONTROL=1 \
+  -e CLAUDE_CONFIG_DIR=/home/coder/.claude \
+  -v claude-config:/home/coder/.claude \
+  -v "$PWD":/home/coder/project \
+  ghcr.io/dominik-ba/code-server-claude:<tag>
+```
+
+Remote Control needs a full claude.ai subscription login: `ANTHROPIC_API_KEY` and long-lived
+tokens from `claude setup-token` / `CLAUDE_CODE_OAUTH_TOKEN` are not accepted. One-time
+setup, from a terminal in code-server:
+
+1. `claude auth login` and sign in with your claude.ai account. With `CLAUDE_CONFIG_DIR`
+   on a volume, as above, the login and settings survive restarts.
+2. `tmux attach -t claude-rc` to see the Remote Control server. Answer the folder trust and
+   the one-time Remote Control confirmation there if asked. Detach with `Ctrl-b d`.
+
+Until you are logged in, the server prints a hint and retries every 30 seconds, so no
+container restart is needed after logging in. The session then shows up in the Claude app
+under the container's hostname. The server runs as `coder` with its working directory set
+to the project, and inherits the container's network and credentials (for example
+`kubectl` access), so treat access to your claude.ai account accordingly.
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `CLAUDE_REMOTE_CONTROL` | unset | `1`/`true`/`yes` starts Remote Control at container start |
+| `CLAUDE_REMOTE_CONTROL_DIR` | `/home/coder/project` | Directory the sessions work in |
+| `CLAUDE_REMOTE_CONTROL_ARGS` | empty | Extra flags, e.g. `--spawn worktree --permission-mode acceptEdits` |
+| `CLAUDE_REMOTE_CONTROL_SESSION_NAME_PREFIX` | hostname | Prefix for session names in the app (read by Claude Code) |
+| `CLAUDE_REMOTE_CONTROL_RETRY_SECONDS` | `30` | Delay before restarting after the server exits |
+
+The startup hook lives in `/entrypoint.d`, which code-server's entrypoint runs before
+code-server starts. Mounting your own `/entrypoint.d` replaces it.
+
 ## CI and pull requests
 
 | Workflow | Trigger | Purpose |
