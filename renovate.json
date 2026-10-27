@@ -201,8 +201,8 @@
     {
       "description": "Update the code-server tag in image/Dockerfile",
       "customType": "regex",
-      "fileMatch": [
-        "^image/Dockerfile$"
+      "managerFilePatterns": [
+        "/^image/Dockerfile$/"
       ],
       "matchStrings": [
         "ARG\\s+CODE_SERVER_TAG=(?<currentValue>[^\\s]+)"
@@ -214,8 +214,8 @@
     {
       "description": "Update the pinned Claude Code CLI version in image/Dockerfile",
       "customType": "regex",
-      "fileMatch": [
-        "^image/Dockerfile$"
+      "managerFilePatterns": [
+        "/^image/Dockerfile$/"
       ],
       "matchStrings": [
         "ARG\\s+CLAUDE_CODE_VERSION=(?<currentValue>[^\\s]+)"
@@ -227,8 +227,8 @@
     {
       "description": "Update the pinned kubectl version in image/Dockerfile",
       "customType": "regex",
-      "fileMatch": [
-        "^image/Dockerfile$"
+      "managerFilePatterns": [
+        "/^image/Dockerfile$/"
       ],
       "matchStrings": [
         "ARG\\s+KUBECTL_VERSION=(?<currentValue>[^\\s]+)"
