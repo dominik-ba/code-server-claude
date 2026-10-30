@@ -12,7 +12,7 @@ ARG TARGETARCH
 # The base image already ships curl, git and openssh-client.
 # tmux hosts the optional Claude Remote Control server (see CLAUDE_REMOTE_CONTROL below).
 ARG NODE_MAJOR=22
-ARG CLAUDE_CODE_VERSION=2.1.310
+ARG CLAUDE_CODE_VERSION=2.1.311
 RUN apt-get update && \
     apt-get install -y --no-install-recommends ca-certificates tmux && \
     curl -fsSL "https://deb.nodesource.com/setup_${NODE_MAJOR}.x" | bash - && \
