@@ -1,6 +1,6 @@
 # Debian-based code-server release (the "-39"/"-fedora" variants have no apt-get).
 ARG CODE_SERVER_IMAGE=codercom/code-server
-ARG CODE_SERVER_TAG=4.141.1
+ARG CODE_SERVER_TAG=4.143.1
 FROM $CODE_SERVER_IMAGE:$CODE_SERVER_TAG
 
 USER 0
