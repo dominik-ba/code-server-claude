@@ -30,6 +30,8 @@ jobs:
     permissions:
       contents: read
       packages: write
+    outputs:
+      version: ${{ steps.vars.outputs.version }}
 
     steps:
       - name: Checkout repository
@@ -60,6 +62,8 @@ jobs:
           tags: |
             type=raw,value=${{ steps.vars.outputs.version }}
             type=raw,value=${{ steps.vars.outputs.contents }}
+          # metadata-action also sets org.opencontainers.image.source to this repository;
+          # Renovate follows it to the GitHub releases created by the release job.
           labels: |
             org.opencontainers.image.version=${{ steps.vars.outputs.version }}
             io.github.dominik-ba.code-server.version=${{ steps.vars.outputs.code_server }}
@@ -90,3 +94,32 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  # One GitHub release per published image, tagged with the image version. Renovate in
+  # repositories that deploy the image shows its notes in the update PR.
+  release:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.build-and-push.outputs.version }}
+        run: |
+          if gh release view "$VERSION" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "Release $VERSION already exists"
+            exit 0
+          fi
+          .github/scripts/release-notes.sh "$VERSION" "$GITHUB_SHA" > "$RUNNER_TEMP/notes.md"
+          cat "$RUNNER_TEMP/notes.md"
+          gh release create "$VERSION" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+            --title "$VERSION" --notes-file "$RUNNER_TEMP/notes.md"
