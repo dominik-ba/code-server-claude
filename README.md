@@ -68,6 +68,12 @@ previous release (with links to their release notes) and the commits in between.
 `org.opencontainers.image.source` label points to this repository, so Renovate shows these
 notes in the update PRs of repositories that deploy the image.
 
+The notes are generated from commit subjects, so a commit subject (or, for squash-merged
+PRs, the PR title) is the changelog entry. Write it as what changes for someone running the
+image, e.g. `Add opt-in Claude Remote Control server at container start`, not `fix stuff`.
+Details belong in the commit body or PR description. See "Commit messages and PR titles" in
+[`AGENTS.md`](AGENTS.md).
+
 ## Run
 
 The image inherits code-server's default entrypoint and listens on port `8080`. Set a

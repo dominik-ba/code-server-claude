@@ -19,3 +19,6 @@ Builds `ghcr.io/dominik-ba/code-server-claude`: `codercom/code-server` (Debian) 
   no `pull_request_target`, no registry login or push in PR jobs, actions pinned to commit
   SHAs. Only `build-image.yml` on `main` publishes.
 - `.editorconfig`, English for code and docs.
+- Release notes are generated from commit subjects (see "Commit messages and PR titles" in
+  `AGENTS.md`): each commit subject and PR title must say what changes for someone running
+  the image. PRs are squash-merged.

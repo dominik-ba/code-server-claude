@@ -15,3 +15,5 @@ Claude Code operating rules and does not repeat that content.
   must stay without secrets and write access.
 - No secrets belong in this repository or the image.
 - Read "Pitfalls" in `AGENTS.md` before release, registry or image-version work.
+- Commit subjects and PR titles become the release notes; follow "Commit messages and PR
+  titles" in `AGENTS.md`.
