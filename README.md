@@ -119,6 +119,10 @@ setup, from a terminal in code-server:
 2. `tmux attach -t claude-rc` to see the Remote Control server. Answer the folder trust and
    the one-time Remote Control confirmation there if asked. Detach with `Ctrl-b d`.
 
+While the server runs, every new interactive shell (code-server terminal, `docker exec -it …
+bash`) prints a short note with the `tmux attach` command and, until you are signed in, a
+reminder to run `claude auth login`. Set `CLAUDE_REMOTE_CONTROL_HINT=0` to turn it off.
+
 Until you are logged in, the server prints a hint and retries every 30 seconds, so no
 container restart is needed after logging in. The session then shows up in the Claude app
 under the container's hostname. The server runs as `coder` with its working directory set
@@ -132,6 +136,7 @@ to the project, and inherits the container's network and credentials (for exampl
 | `CLAUDE_REMOTE_CONTROL_ARGS` | empty | Extra flags, e.g. `--spawn worktree --permission-mode acceptEdits` |
 | `CLAUDE_REMOTE_CONTROL_SESSION_NAME_PREFIX` | hostname | Prefix for session names in the app (read by Claude Code) |
 | `CLAUDE_REMOTE_CONTROL_RETRY_SECONDS` | `30` | Delay before restarting after the server exits |
+| `CLAUDE_REMOTE_CONTROL_HINT` | `1` | `0` stops new shells from printing how to reach the session |
 
 The startup hook lives in `/entrypoint.d`, which code-server's entrypoint runs before
 code-server starts. Mounting your own `/entrypoint.d` replaces it.

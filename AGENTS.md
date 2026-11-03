@@ -22,6 +22,8 @@ storage, RBAC, ingress) belong in the deploying Helm chart or manifests, not in 
   is run by code-server's entrypoint (`$ENTRYPOINTD` is `/entrypoint.d`) and, with
   `CLAUDE_REMOTE_CONTROL=1`, starts `usr/local/bin/claude-remote-control` (a restart loop
   around `claude remote-control`) in the tmux session `claude-rc`.
+  `usr/local/share/code-server-claude/remote-control-hint.sh` is sourced from
+  `/etc/bash.bashrc` and `/etc/zsh/zshrc` and tells new interactive shells how to attach.
 - `.hadolint.yaml`: hadolint settings (apt version pinning ignored on purpose).
 - `.github/workflows/ci.yml`: PR and main tests (hadolint, amd64 + arm64 build, amd64 smoke test).
 - `.github/workflows/build-image.yml`: the only publisher (main and manual runs). After the

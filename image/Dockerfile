@@ -32,6 +32,11 @@ RUN curl -fsSLo /usr/local/bin/kubectl "https://dl.k8s.io/release/${KUBECTL_VERS
 # starts. The code-server base image runs every executable in $ENTRYPOINTD (/entrypoint.d).
 COPY --chmod=0755 rootfs/entrypoint.d/ /entrypoint.d/
 COPY --chmod=0755 rootfs/usr/local/bin/claude-remote-control /usr/local/bin/claude-remote-control
+# New interactive shells print how to reach the Remote Control session when it runs.
+COPY rootfs/usr/local/share/code-server-claude/ /usr/local/share/code-server-claude/
+RUN for rc in /etc/bash.bashrc /etc/zsh/zshrc; do \
+        printf '\n. /usr/local/share/code-server-claude/remote-control-hint.sh\n' >> "$rc"; \
+    done
 
 # uid 1000 is "coder" in the base image
 USER 1000
