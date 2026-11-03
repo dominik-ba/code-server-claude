@@ -62,6 +62,18 @@ record the exact contents.
 docker pull ghcr.io/dominik-ba/code-server-claude:<tag>
 ```
 
+Every published image also gets a [GitHub release](https://github.com/dominik-ba/code-server-claude/releases)
+with the same tag. Its notes list the component versions, which ones changed since the
+previous release (with links to their release notes) and the commits in between. The image's
+`org.opencontainers.image.source` label points to this repository, so Renovate shows these
+notes in the update PRs of repositories that deploy the image.
+
+The notes are generated from commit subjects, so a commit subject (or, for squash-merged
+PRs, the PR title) is the changelog entry. Write it as what changes for someone running the
+image, e.g. `Add opt-in Claude Remote Control server at container start`, not `fix stuff`.
+Details belong in the commit body or PR description. See "Commit messages and PR titles" in
+[`AGENTS.md`](AGENTS.md).
+
 ## Run
 
 The image inherits code-server's default entrypoint and listens on port `8080`. Set a

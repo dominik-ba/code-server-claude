@@ -24,7 +24,9 @@ storage, RBAC, ingress) belong in the deploying Helm chart or manifests, not in 
   around `claude remote-control`) in the tmux session `claude-rc`.
 - `.hadolint.yaml`: hadolint settings (apt version pinning ignored on purpose).
 - `.github/workflows/ci.yml`: PR and main tests (hadolint, amd64 + arm64 build, amd64 smoke test).
-- `.github/workflows/build-image.yml`: the only publisher (main and manual runs).
+- `.github/workflows/build-image.yml`: the only publisher (main and manual runs). After the
+  push, its `release` job creates a GitHub release tagged with the image version, with notes
+  from `.github/scripts/release-notes.sh`; Renovate shows them in deploying repositories.
 - `renovate.json`: updates for the base image, Claude Code CLI, kubectl and actions.
 
 ## Commands
@@ -71,6 +73,24 @@ Before proposing a change as complete, run and report what applies:
 - 2-space indentation for YAML/JSON, 4 spaces for shell (`.editorconfig`); English for code
   and docs.
 
+## Commit messages and PR titles
+
+Release notes are generated, not written: `.github/scripts/release-notes.sh` lists the
+subject line of every non-merge commit since the previous release, and Renovate copies the
+notes into the update PRs of deploying repositories. The subject line is therefore the
+changelog entry for people running the image.
+
+- Write the subject as what changes for someone running the image, in the imperative, at
+  most ~72 characters: `Add opt-in Claude Remote Control server at container start`, not
+  `fix stuff`, `wip` or `address review`.
+- Squash-merge PRs so the PR title becomes the one line in the notes; give the PR title the
+  same care. With a merge commit, every commit subject of the branch shows up instead.
+- Conventional prefixes are fine (`feat:`, `fix:`, `chore(deps):`, as Renovate uses), but
+  the rest of the line must still say what changed.
+- Commit bodies and PR descriptions do not appear in the notes; put the why there.
+- Never edit the notes by hand or create release tags manually; the publish workflow owns
+  both.
+
 ## Security notes
 
 - No secrets in the repository or the image. `PASSWORD` and `ANTHROPIC_API_KEY` are runtime
@@ -78,7 +98,7 @@ Before proposing a change as complete, run and report what applies:
 - Fork PRs run CI with a read-only `GITHUB_TOKEN` and no secrets. Do not use
   `pull_request_target`, do not add `workflow_run` jobs that consume PR artifacts, and do
   not log in to a registry or push from PR jobs. Only `build-image.yml` on `main` has
-  `packages: write`.
+  `packages: write` (build job) and `contents: write` (release job, for tags and releases).
 - Third-party actions are pinned to commit SHAs (Renovate keeps them current). Keep new
   actions pinned the same way.
 
