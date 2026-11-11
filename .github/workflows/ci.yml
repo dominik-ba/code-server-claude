@@ -73,6 +73,15 @@ jobs:
             node --version
             claude --version
             kubectl version --client
+            gh --version
+            yq --version
+            helm version --short
+            jq --version
+            python3 -c "import yaml"
+            unzip -v
+            zip -v
+            dig -v
+            command -v nc
             tmux -V
             git --version
             ssh -V

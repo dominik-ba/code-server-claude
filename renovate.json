@@ -195,6 +195,67 @@
         "dependencies",
         "kubectl"
       ]
+    },
+    {
+      "description": "Auto-merge gh patch/minor updates after a waiting period",
+      "matchDatasources": [
+        "github-releases"
+      ],
+      "matchPackageNames": [
+        "cli/cli"
+      ],
+      "matchUpdateTypes": [
+        "patch",
+        "minor"
+      ],
+      "automerge": true,
+      "automergeType": "pr",
+      "minimumReleaseAge": "3 days",
+      "labels": [
+        "dependencies",
+        "gh"
+      ]
+    },
+    {
+      "description": "Auto-merge yq patch/minor updates after a waiting period",
+      "matchDatasources": [
+        "github-releases"
+      ],
+      "matchPackageNames": [
+        "mikefarah/yq"
+      ],
+      "matchUpdateTypes": [
+        "patch",
+        "minor"
+      ],
+      "automerge": true,
+      "automergeType": "pr",
+      "minimumReleaseAge": "3 days",
+      "labels": [
+        "dependencies",
+        "yq"
+      ]
+    },
+    {
+      "description": "Keep helm on 4.2.x (supports Kubernetes 1.33-1.36); raise this together with kubectl",
+      "matchDatasources": [
+        "github-releases"
+      ],
+      "matchPackageNames": [
+        "helm/helm"
+      ],
+      "matchUpdateTypes": [
+        "patch",
+        "minor"
+      ],
+      "automerge": true,
+      "automergeType": "pr",
+      "minimumReleaseAge": "3 days",
+      "labels": [
+        "dependencies",
+        "helm"
+      ],
+      "allowedVersions": "<4.3.0"
     }
   ],
   "customManagers": [
@@ -234,6 +295,45 @@
         "ARG\\s+KUBECTL_VERSION=(?<currentValue>[^\\s]+)"
       ],
       "depNameTemplate": "kubernetes/kubernetes",
+      "datasourceTemplate": "github-releases",
+      "versioningTemplate": "semver"
+    },
+    {
+      "description": "Update the pinned gh version in image/Dockerfile",
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^image/Dockerfile$/"
+      ],
+      "matchStrings": [
+        "ARG\\s+GH_VERSION=(?<currentValue>[^\\s]+)"
+      ],
+      "depNameTemplate": "cli/cli",
+      "datasourceTemplate": "github-releases",
+      "versioningTemplate": "semver"
+    },
+    {
+      "description": "Update the pinned yq version in image/Dockerfile",
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^image/Dockerfile$/"
+      ],
+      "matchStrings": [
+        "ARG\\s+YQ_VERSION=(?<currentValue>[^\\s]+)"
+      ],
+      "depNameTemplate": "mikefarah/yq",
+      "datasourceTemplate": "github-releases",
+      "versioningTemplate": "semver"
+    },
+    {
+      "description": "Update the pinned helm version in image/Dockerfile",
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^image/Dockerfile$/"
+      ],
+      "matchStrings": [
+        "ARG\\s+HELM_VERSION=(?<currentValue>[^\\s]+)"
+      ],
+      "depNameTemplate": "helm/helm",
       "datasourceTemplate": "github-releases",
       "versioningTemplate": "semver"
     }

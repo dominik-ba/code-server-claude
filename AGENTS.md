@@ -8,7 +8,7 @@ keep repository facts here and avoid duplicating them elsewhere.
 
 Builds the container image `ghcr.io/dominik-ba/code-server-claude`: the official
 `codercom/code-server` image (Debian variant) plus Node.js 22, the Claude Code CLI
-(`@anthropic-ai/claude-code`) and `kubectl`. It runs as a browser-based coding workspace.
+(`@anthropic-ai/claude-code`), `kubectl` and helper tools (`gh`, `yq`, `helm`, `jq`). It runs as a browser-based coding workspace.
 The repo is public; anyone can open pull requests from forks.
 
 The image is meant to run in Kubernetes, including arm64 nodes. Deployment concerns (auth,
@@ -17,7 +17,8 @@ storage, RBAC, ingress) belong in the deploying Helm chart or manifests, not in 
 ## Layout
 
 - `image/Dockerfile`: the image. All versions are `ARG`s: `CODE_SERVER_TAG`,
-  `NODE_MAJOR`, `CLAUDE_CODE_VERSION`, `KUBECTL_VERSION`.
+  `NODE_MAJOR`, `CLAUDE_CODE_VERSION`, `KUBECTL_VERSION`, `GH_VERSION`, `YQ_VERSION`,
+  `HELM_VERSION`.
 - `image/rootfs/`: files copied into the image. `entrypoint.d/50-claude-remote-control.sh`
   is run by code-server's entrypoint (`$ENTRYPOINTD` is `/entrypoint.d`) and, with
   `CLAUDE_REMOTE_CONTROL=1`, starts `usr/local/bin/claude-remote-control` (a restart loop
@@ -29,7 +30,7 @@ storage, RBAC, ingress) belong in the deploying Helm chart or manifests, not in 
 - `.github/workflows/build-image.yml`: the only publisher (main and manual runs). After the
   push, its `release` job creates a GitHub release tagged with the image version, with notes
   from `.github/scripts/release-notes.sh`; Renovate shows them in deploying repositories.
-- `renovate.json`: updates for the base image, Claude Code CLI, kubectl and actions.
+- `renovate.json`: updates for the base image, Claude Code CLI, kubectl, gh, yq, helm and actions.
 
 ## Commands
 
@@ -60,6 +61,8 @@ Before proposing a change as complete, run and report what applies:
   no `apt-get`.
 - `KUBECTL_VERSION` stays on one Kubernetes minor (currently 1.33, `allowedVersions` in
   `renovate.json`); raising the minor is a deliberate change.
+- `HELM_VERSION` stays on helm 4.2.x (supports Kubernetes 1.33-1.36; `allowedVersions` in
+  `renovate.json`); raise it together with `KUBECTL_VERSION`.
 - Every version change goes through `image/Dockerfile` so Renovate and the tag computation
   in `build-image.yml` see it.
 
