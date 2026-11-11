@@ -15,7 +15,7 @@ ARG TARGETARCH
 # JSON handling, archives and network debugging. python3-yaml gives system python3 `import yaml`
 # without a pip/venv step (the base image has python3 but no PyYAML).
 ARG NODE_MAJOR=22
-ARG CLAUDE_CODE_VERSION=2.1.317
+ARG CLAUDE_CODE_VERSION=2.1.319
 RUN apt-get update && \
     apt-get install -y --no-install-recommends ca-certificates tmux jq unzip zip dnsutils netcat-openbsd python3-yaml && \
     curl -fsSL "https://deb.nodesource.com/setup_${NODE_MAJOR}.x" | bash - && \
