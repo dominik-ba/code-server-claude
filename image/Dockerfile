@@ -40,6 +40,9 @@ RUN for rc in /etc/bash.bashrc /etc/zsh/zshrc; do \
 
 # uid 1000 is "coder" in the base image
 USER 1000
+# User-installed tools (pip --user, npm prefix, manual downloads) in ~/.local/bin are on PATH for
+# every process, including non-interactive ones such as Claude sessions under Remote Control.
+ENV PATH="/home/coder/.local/bin:${PATH}"
 # Owned by coder so a volume mounted here (e.g. as CLAUDE_CONFIG_DIR) is writable.
 RUN mkdir -p /home/coder/.claude
 WORKDIR /home/coder/project

@@ -21,6 +21,8 @@ Code can be used directly from a code-server terminal.
 - `@anthropic-ai/claude-code` (pinned via `ARG CLAUDE_CODE_VERSION`)
 - `kubectl` (pinned via `ARG KUBECTL_VERSION`, checksum-verified, kept on one
   Kubernetes minor version, currently 1.33)
+- `~/.local/bin` is on `PATH` (first), so tools installed per user, e.g. into a persistent
+  home volume, work in every shell and in non-interactive processes without extra setup.
 
 All versions are pinned in `image/Dockerfile` and updated by Renovate.
 
