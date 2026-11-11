@@ -23,7 +23,7 @@ Code can be used directly from a code-server terminal.
   Kubernetes minor version, currently 1.33)
 - `gh`, `yq` and `helm` (pinned via `ARG GH_VERSION`, `YQ_VERSION`, `HELM_VERSION`,
   checksum-verified static binaries for amd64 and arm64)
-- `jq`, `unzip`, `zip`, `dig`/`nslookup` (dnsutils) and `nc` (netcat-openbsd) from Debian
+- `jq`, `unzip`, `zip`, `dig`/`nslookup` (dnsutils), `nc` (netcat-openbsd) and `python3-yaml` (PyYAML for the system python3) from Debian
 - `~/.local/bin` is on `PATH` (first), so tools installed per user, e.g. into a persistent
   home volume, work in every shell and in non-interactive processes without extra setup.
 

@@ -12,11 +12,12 @@ ARG TARGETARCH
 # The base image already ships curl, git and openssh-client.
 # tmux hosts the optional Claude Remote Control server (see CLAUDE_REMOTE_CONTROL below).
 # jq, unzip, zip, dnsutils (dig/nslookup) and netcat-openbsd (nc) are small helpers for
-# JSON handling, archives and network debugging.
+# JSON handling, archives and network debugging. python3-yaml gives system python3 `import yaml`
+# without a pip/venv step (the base image has python3 but no PyYAML).
 ARG NODE_MAJOR=22
 ARG CLAUDE_CODE_VERSION=2.1.317
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends ca-certificates tmux jq unzip zip dnsutils netcat-openbsd && \
+    apt-get install -y --no-install-recommends ca-certificates tmux jq unzip zip dnsutils netcat-openbsd python3-yaml && \
     curl -fsSL "https://deb.nodesource.com/setup_${NODE_MAJOR}.x" | bash - && \
     apt-get install -y --no-install-recommends nodejs && \
     npm install -g "@anthropic-ai/claude-code@${CLAUDE_CODE_VERSION}" && \
