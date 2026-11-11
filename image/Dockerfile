@@ -34,8 +34,8 @@ RUN curl -fsSLo /usr/local/bin/kubectl "https://dl.k8s.io/release/${KUBECTL_VERS
 ARG GH_VERSION=v2.103.3
 ARG YQ_VERSION=v4.54.3
 ARG HELM_VERSION=v4.2.4
-RUN tmp="$(mktemp -d)" && cd "$tmp" && \
-    gh_dir="gh_${GH_VERSION#v}_linux_${TARGETARCH}" && \
+WORKDIR /tmp/tools
+RUN gh_dir="gh_${GH_VERSION#v}_linux_${TARGETARCH}" && \
     curl -fsSLO "https://github.com/cli/cli/releases/download/${GH_VERSION}/${gh_dir}.tar.gz" && \
     curl -fsSL "https://github.com/cli/cli/releases/download/${GH_VERSION}/gh_${GH_VERSION#v}_checksums.txt" | grep " ${gh_dir}.tar.gz\$" | sha256sum -c - && \
     tar -xzf "${gh_dir}.tar.gz" && \
@@ -51,7 +51,8 @@ RUN tmp="$(mktemp -d)" && cd "$tmp" && \
     curl -fsSL "https://get.helm.sh/helm-${HELM_VERSION}-linux-${TARGETARCH}.tar.gz.sha256sum" | sha256sum -c - && \
     tar -xzf "helm-${HELM_VERSION}-linux-${TARGETARCH}.tar.gz" && \
     install -m 0755 "linux-${TARGETARCH}/helm" /usr/local/bin/helm && \
-    cd / && rm -rf "$tmp"
+    rm -rf /tmp/tools/*
+WORKDIR /
 
 # Optional Remote Control server, off by default. With CLAUDE_REMOTE_CONTROL=1 the startup
 # hook runs `claude remote-control` in the tmux session "claude-rc" before code-server
