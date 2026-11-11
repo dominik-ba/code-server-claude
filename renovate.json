@@ -237,7 +237,7 @@
       ]
     },
     {
-      "description": "Auto-merge helm patch/minor updates after a waiting period",
+      "description": "Keep helm on 4.2.x (supports Kubernetes 1.33-1.36); raise this together with kubectl",
       "matchDatasources": [
         "github-releases"
       ],
@@ -254,7 +254,8 @@
       "labels": [
         "dependencies",
         "helm"
-      ]
+      ],
+      "allowedVersions": "<4.3.0"
     }
   ],
   "customManagers": [

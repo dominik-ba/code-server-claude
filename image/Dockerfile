@@ -32,7 +32,7 @@ RUN curl -fsSLo /usr/local/bin/kubectl "https://dl.k8s.io/release/${KUBECTL_VERS
 # gh, yq and helm: pinned, checksum-verified static binaries (the Debian packages lag far behind).
 ARG GH_VERSION=v2.103.3
 ARG YQ_VERSION=v4.54.3
-ARG HELM_VERSION=v4.3.1
+ARG HELM_VERSION=v4.2.4
 RUN tmp="$(mktemp -d)" && cd "$tmp" && \
     gh_dir="gh_${GH_VERSION#v}_linux_${TARGETARCH}" && \
     curl -fsSLO "https://github.com/cli/cli/releases/download/${GH_VERSION}/${gh_dir}.tar.gz" && \

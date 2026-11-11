@@ -61,6 +61,8 @@ Before proposing a change as complete, run and report what applies:
   no `apt-get`.
 - `KUBECTL_VERSION` stays on one Kubernetes minor (currently 1.33, `allowedVersions` in
   `renovate.json`); raising the minor is a deliberate change.
+- `HELM_VERSION` stays on helm 4.2.x (supports Kubernetes 1.33-1.36; `allowedVersions` in
+  `renovate.json`); raise it together with `KUBECTL_VERSION`.
 - Every version change goes through `image/Dockerfile` so Renovate and the tag computation
   in `build-image.yml` see it.
 
